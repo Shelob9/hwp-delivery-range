@@ -10,6 +10,16 @@
 class hwp_dr_locate {
 	static $cache_group = 'hwp_dr-locations';
 
+	/**
+	 * Get locations with range of the $range param
+	 *
+	 * @param array  $lat_long Location to search from.
+	 * @param int    $range	Range to search within.
+	 * @param string $source The name of the content type to search in.
+	 * @param string $source_typeThe content type of $source. post|pod
+	 *
+	 * @return array|bool|mixed|string|void
+	 */
 	public function get_locations( $lat_long, $range, $source = 'location', $source_type = 'pod' ) {
 		$params = $this->params( $lat_long, $range, $source, $source_type );
 		$locations = $this->query_locations( $params, $source_type );
@@ -23,6 +33,44 @@ class hwp_dr_locate {
 
 	}
 
+	/**
+	 * Does the actual query for locations
+	 *
+	 * @param array $params
+	 * @param string $type post|pod
+	 *
+	 * @return array|bool|mixed
+	 */
+	function query_locations( $params, $type ) {
+
+		$source = apply_filters( 'hwp_dr_location_source', 'location' );
+		if ( $type === 'pod' && function_exists( 'pods') ) {
+			$locations = $this->query_pod( $source, $params );
+		}
+		elseif ( $type !== 'pod' ) {
+			$locations = $this->query_post_type( $source, $params );
+		}
+		else {
+			wp_die( __METHOD__.__LINE__ );
+		}
+
+		if ( is_array( $locations ) ) {
+
+
+			return $locations;
+
+		}
+
+	}
+
+	/**
+	 * Params that can be passed to Pods::find() or (theoretically) $wpdb->get_col()
+	 *
+	 * @param array $lat_long Location to search from.
+	 * @param int    $range	Range to search within.
+	 *
+	 * @return array
+	 */
 	function params( $lat_long, $range ) {
 		if ( ! empty( $lat_long ) && ! empty( $lat_long[ 'lat' ] ) && ! empty( $lat_long[ 'long' ] ) && $range ) {
 
@@ -53,28 +101,15 @@ class hwp_dr_locate {
 
 	}
 
-	function query_locations( $params, $type ) {
 
-		$source = apply_filters( 'hwp_dr_location_source', 'location' );
-		if ( $type === 'pod' && function_exists( 'pods') ) {
-			$locations = $this->query_pod( $source, $params );
-		}
-		elseif ( $type !== 'pod' ) {
-			$locations = $this->query_post_type( $source, $params );
-		}
-		else {
-			wp_die( __METHOD__.__LINE__ );
-		}
-
-		if ( is_array( $locations ) ) {
-
-
-			return $locations;
-
-		}
-
-	}
-
+	/**
+	 * Query a Pod by location/range
+	 *
+	 * @param string|Pods $pod Either the name of the Pod to query or a prebuilt object of the Pods class.
+	 * @param array $params
+	 *
+	 * @return array|bool|mixed
+	 */
 	function query_pod( $pod, $params ) {
 		if ( ! is_object( $pod ) || is_pod( $pod ) ) {
 			if ( is_string( $pod ) ) {
@@ -162,7 +197,7 @@ class hwp_dr_locate {
 	}
 
 	/**
-	 * Get lattitude from field value or geocode it
+	 * Get latitude from field value or geocode it
 	 *
 	 * @param $pod
 	 * @param $address
@@ -210,10 +245,25 @@ class hwp_dr_locate {
 		return hwp_dr_geocode::init();
 	}
 
+	/**
+	 * @param $post_type
+	 * @param $params
+	 *
+	 * @return array
+	 */
 	function query_post_type( $post_type, $params ) {
 		wp_die( __METHOD__.'not ready:(');
+		global $wpdb;
+		return $wpdb->get_col( $params );
 	}
 
+	/**
+	 * Get the name of field being used for delivery_range, latitude or longitude.
+	 *
+	 * @param string $field Options: delivery_range|lat|long
+	 *
+	 * @return mixed|void
+	 */
 	function fields( $field ) {
 
 		if ( ! in_array( $field, array( 'delivery_range', 'lat', 'long' )  ) ) {
@@ -237,8 +287,6 @@ class hwp_dr_locate {
 			return apply_filters( 'hwp_dr_geocode_long_field', 'geocode_long' );
 
 		}
-
-
 
 	}
 }
