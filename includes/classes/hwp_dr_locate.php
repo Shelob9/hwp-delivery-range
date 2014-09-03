@@ -170,7 +170,7 @@ class hwp_dr_locate {
 						'title' => $title,
 						'address' => $address,
 						'phone' => $pod->field( 'phone_number' ),
-						'link' => $pod->field( ( is_page( 'order-online' ) ? 'order_url' : 'detail_url' ) ),
+						'ID' => $pod->id(),
 						'google_address' => $google_address,
 						'lat' => $lat,
 						'long' => $long,
@@ -242,7 +242,9 @@ class hwp_dr_locate {
 	}
 
 	function geocoder_class() {
+
 		return hwp_dr_geocode::init();
+
 	}
 
 	/**
@@ -288,5 +290,30 @@ class hwp_dr_locate {
 
 		}
 
+	}
+
+	/**
+	 * Holds the instance of this class.
+	 *
+	 * @since  0.0.1
+	 * @access private
+	 * @var    object
+	 */
+	private static $instance;
+
+
+	/**
+	 * Returns the instance.
+	 *
+	 * @since  0.0.1
+	 * @access public
+	 * @return object
+	 */
+	public static function init() {
+
+		if ( !self::$instance )
+			self::$instance = new hwp_dr_locate();
+
+		return self::$instance;
 	}
 }
