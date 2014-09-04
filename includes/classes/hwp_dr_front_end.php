@@ -61,17 +61,22 @@ class hwp_dr_front_end {
 				$form_fields[] = $pods_form::field( $field, '', 'text' );
 			}
 			$form_fields = implode( $form_fields );
-			$form = sprintf( '
+			$url = $this->page_url();
+			if ( empty( $url ) ) {
+				//@todo autodetect current page
+				$url = home_url();
+			}
+			$form =  '
 				<div id="pods-meta-box" class="postbox" style="width:100%;">
-					<form action="%1s" method="get">
-						%2s
-						<input type="submit" value="Select This Date And Park" class="pods-submit-button button" />
+					<form action="'.$url.'" method="get">
+						'.$form_fields.'
+						<input type="submit" value="'.__( 'Search', 'hwp_dr' ).'" class="pods-submit-button button" />
 					</form>
 				</div>
-			', $this->page_url(), $form_fields );
+			';
 		}
 		else {
-			$form = __( 'Error! We do not have a form for when Pods is not active . You can use the "hwp_dr_search_form" filter to add your own form.', 'hwp_dr' );
+			$form = __( 'Error! We do not yet have a form for when Pods is not active . You can use the "hwp_dr_search_form" filter to add your own form.', 'hwp_dr' );
 		}
 
 		return apply_filters( 'hwp_dr_search_form', $form );
