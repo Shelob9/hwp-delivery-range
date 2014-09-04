@@ -48,20 +48,38 @@ function hwp_dr_init() {
 	$locale = apply_filters( 'plugin_locale', get_locale(), 'hwp_dr' );
 	load_textdomain( 'hwp_dr', WP_LANG_DIR . '/hwp_dr/hwp_dr-' . $locale . '.mo' );
 	load_plugin_textdomain( 'hwp_dr', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+
+/**
+ * Load classes
+ */
+function hwp_dr_classes() {
 
 	$classes_dir = trailingslashit( HWP_DR_PATH ).'includes/classes';
 	include_once( trailingslashit( $classes_dir ) .'hwp_dr_locate.php' );
 	include_once ( trailingslashit( $classes_dir) .'hwp_dr_geocode.php' );
 
+
 	$utilities_dir =  trailingslashit( HWP_DR_PATH ).'includes/utility/';
 	if ( defined( 'PODS_VERSION' ) ) {
 		include_once(  $utilities_dir .'pods_utilities.php' );
 	}
-	include_once(  $utilities_dir .'general.php' );
-	$locate = new hwp_dr_locate();
-	$GLOBALS[ 'hwp_dr_locate' ] = $locate;
 
-	return $locate;
+	include_once(  $utilities_dir .'general.php' );
+	$class = hwp_dr_locate::init();
+	$GLOBALS[ 'hwp_dr_locate' ] = $class;
+
+	if ( is_admin() ) {
+		include_once ( trailingslashit( $classes_dir ) .'hwp_dr_admin.php' );
+		$class = hwp_dr_admin::init();
+		$GLOBALS[ 'hwp_admin' ] = $class;
+	}
+	else {
+		include_once ( trailingslashit( $classes_dir ) .'hwp_dr_front_end.php' );
+		$class = hwp_dr_front_end::init();
+		$GLOBALS[ 'hwp_front_end' ] = $class;
+	}
+
 }
 
 /**
@@ -86,6 +104,7 @@ register_deactivation_hook( __FILE__, 'hwp_dr_deactivate' );
 
 // Wireup actions
 add_action( 'init', 'hwp_dr_init' );
+add_action( 'init', 'hwp_dr_classes' );
 
 //for testing purposes
 //@todo loose this
