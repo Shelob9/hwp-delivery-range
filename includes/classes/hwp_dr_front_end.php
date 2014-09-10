@@ -51,7 +51,7 @@ class hwp_dr_front_end {
 			//@TODO we don't need a nonce. Right?
 			//@TODO filter for this?
 			$fields = array(
-				'location' => __( 'Your Location', 'hwp_dr' ),
+				'local'  => __( 'Your Location', 'hwp_dr' ),
 				'range'	 => __( 'Range', 'hwp_dr' ),
 			);
 
@@ -145,8 +145,8 @@ class hwp_dr_front_end {
 	}
 
 	function get_results() {
-		if ( isset( $_GET[ 'location' ] ) && isset( $_GET[ 'range' ] ) )  {
-			$location = $_GET[ 'location' ];
+		if ( isset( $_GET[ 'local' ] ) && isset( $_GET[ 'range' ] ) )  {
+			$location = $_GET[ 'local' ];
 			$range = $_GET[ 'range' ];
 			$location = $this->geocode( $location );
 			if ( is_string( $range ) && is_array( $location ) ) {
