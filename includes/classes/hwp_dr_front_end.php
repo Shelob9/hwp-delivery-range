@@ -84,7 +84,7 @@ class hwp_dr_front_end {
 	}
 
 	function query( $lat_long, $range, $source = 'location', $source_type = 'pod' ) {
-		return $this->location_class()->get_locations( $lat_long, $range, $source, $source_type );
+		return $this->location_class()->get_locations( $lat_long, (float) $range, $source, $source_type );
 	}
 
 	function display_results( $results = null ) {
